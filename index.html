@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stripe Fee Analyzer</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <style>
+      :root {
+        --primary: #0e1117;
+        --secondary: #00bcd4;
+        --accent: #1de9b6;
+        --text: #e0e0e0;
+        --white: #ffffff;
+        --header-overlay: rgba(0, 0, 0, 0.6);
+      }
+
+      .light-theme {
+        --primary: #ffffff;
+        --secondary: #00bcd4;
+        --accent: #1de9b6;
+        --text: #111111;
+        --white: #ffffff;
+        --header-overlay: rgba(255, 255, 255, 0.5);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: var(--primary);
+        color: var(--text);
+        line-height: 1.6;
+        overflow-x: hidden;
+        transition: background 0.5s, color 0.5s;
+      }
+
+      nav {
+        background: #121821;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        flex-wrap: wrap;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 1rem;
+      }
+
+      nav a {
+        color: var(--text);
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s;
+      }
+
+      nav a:hover {
+        color: var(--accent);
+      }
+
+      .menu-toggle {
+        display: none;
+        font-size: 1.5rem;
+        background: none;
+        border: none;
+        color: var(--text);
+      }
+
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none;
+          flex-direction: column;
+          width: 100%;
+        }
+        .nav-links.active {
+          display: flex;
+        }
+        .menu-toggle {
+          display: block;
+        }
+      }
+
+      header {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: url("https://images.unsplash.com/photo-1549921296-3a6b9f6c525d"),
+          url("https://images.stripeassets.com/fzn2n1nzq965/7ITBvIUjBudsnymEYtOddj/3f4e576e49ed82d6442ff9b8a3e07784/pricing-stripe-default-social-card.jpg?q=80");
+        background-blend-mode: overlay;
+        background-position: center, center;
+        background-size: cover, auto;
+        text-align: center;
+        padding: 2rem;
+        position: relative;
+      }
+
+      header::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: var(--header-overlay);
+        z-index: 1;
+      }
+
+      header div {
+        position: relative;
+        z-index: 2;
+      }
+
+      header h1 {
+        font-size: 3rem;
+        background: linear-gradient(to right, #00bcd4, #1de9b6);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      header p {
+        font-size: 1.2rem;
+        margin-top: 1rem;
+      }
+
+      .section {
+        padding: 4rem 2rem;
+        text-align: center;
+      }
+
+      .section h2 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+
+      .section p {
+        max-width: 700px;
+        margin: 0 auto;
+        opacity: 0.85;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+
+      .feature {
+        background: #1b222c;
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease, background 0.3s;
+      }
+
+      .feature:hover {
+        transform: translateY(-10px);
+        background: #222d3a;
+      }
+
+      .calculator {
+        background: #1b222c;
+        padding: 2rem;
+        border-radius: 1rem;
+        max-width: 600px;
+        margin: 2rem auto;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .calculator input, .calculator select {
+        width: 100%;
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+        border-radius: 0.5rem;
+        border: none;
+        background: #2e3a4a;
+        color: var(--text);
+      }
+
+      .calculator button {
+        padding: 1rem;
+        background: var(--secondary);
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        cursor: pointer;
+      }
+
+      footer {
+        background: #101419;
+        text-align: center;
+        padding: 2rem;
+        color: #aaa;
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <strong>SFA</strong>
+      <button class="menu-toggle" onclick="toggleMenu()">&#9776;</button>
+      <div class="nav-links" id="navLinks">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#contact">Contact</a>
+        <a href="#calculator">Calculator</a>
+      </div>
+    </nav>
+
+    <header id="home">
+      <div data-aos="fade-up">
+        <h1>Stripe Fee Analyzer</h1>
+        <p>Analyze, understand, and optimize your Stripe transaction fees instantly</p>
+      </div>
+    </header>
+
+    <section class="section" id="about">
+      <h2 data-aos="fade-right">About</h2>
+      <p data-aos="fade-up">Stripe Fee Analyzer is designed to help businesses calculate and understand the transaction costs incurred through Stripe payments across multiple countries. Our mission is to deliver a simple, transparent view of your payment processing expenses.</p>
+    </section>
+
+    <section class="section" id="services">
+      <h2 data-aos="fade-right">Services</h2>
+      <div class="features-grid">
+        <div class="feature" data-aos="zoom-in">
+          <h3>Fee Breakdown</h3>
+          <p>Detailed calculations of Stripe’s fees including fixed and percentage-based rates per country.</p>
+        </div>
+        <div class="feature" data-aos="zoom-in" data-aos-delay="100">
+          <h3>Country Selector</h3>
+          <p>Select your country to get accurate, localized fee estimates.</p>
+        </div>
+        <div class="feature" data-aos="zoom-in" data-aos-delay="200">
+          <h3>Mobile Optimized</h3>
+          <p>Designed to work seamlessly across all devices with a smooth responsive layout.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <h2 data-aos="fade-right">Contact</h2>
+      <p data-aos="fade-up">Have questions or feedback? Reach out via email at <a href="mailto:georgembria@gmail.com" style="color: var(--accent); text-decoration: underline;">georgembria@gmail.com</a></p>
+    </section>
+
+    <section class="section" id="calculator">
+      <h2 data-aos="fade-right">Stripe Fee Calculator</h2>
+      <div class="calculator">
+        <input type="number" id="amount" placeholder="Enter transaction amount ($)" />
+        <select id="country">
+          <option value="us">United States</option>
+          <option value="uk">United Kingdom</option>
+          <option value="ca">Canada</option>
+          <option value="au">Australia</option>
+          <option value="de">Germany</option>
+          <option value="fr">France</option>
+          <option value="jp">Japan</option>
+          <option value="in">India</option>
+          <option value="br">Brazil</option>
+          <option value="za">South Africa</option>
+        </select>
+        <button onclick="calculateFee()">Calculate Fee</button>
+        <p id="result"></p>
+      </div>
+    </section>
+
+    <footer>&copy; 2025 Stripe Fee Analyzer. All rights reserved.</footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+      AOS.init();
+
+      function toggleMenu() {
+        const navLinks = document.getElementById("navLinks");
+        navLinks.classList.toggle("active");
+      }
+
+      const feeRates = {
+        us: { percent: 2.9, fixed: 0.3 },
+        uk: { percent: 1.4, fixed: 0.2 },
+        ca: { percent: 2.9, fixed: 0.3 },
+        au: { percent: 1.75, fixed: 0.3 },
+        de: { percent: 1.4, fixed: 0.25 },
+        fr: { percent: 1.4, fixed: 0.25 },
+        jp: { percent: 3.6, fixed: 0.3 },
+        in: { percent: 2, fixed: 0.3 },
+        br: { percent: 3.99, fixed: 0.3 },
+        za: { percent: 2.95, fixed: 0.3 }
+      };
+
+      function calculateFee() {
+        const amount = parseFloat(document.getElementById("amount").value);
+        const country = document.getElementById("country").value;
+
+        if (!amount || amount <= 0) {
+          document.getElementById("result").innerText = "Please enter a valid amount.";
+          return;
+        }
+
+        const rate = feeRates[country];
+        const fee = (amount * rate.percent) / 100 + rate.fixed;
+        const net = amount - fee;
+
+        document.getElementById("result").innerText = `Stripe Fee: $${fee.toFixed(2)} | Net Amount: $${net.toFixed(2)}`;
+      }
+    </script>
+  </body>
+</html>
